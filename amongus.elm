@@ -578,8 +578,8 @@ myShapes model = case model.state of
                                           |> notifyTap LeavesContinue
                                        ]
                                        
-                                       
-           type Msg = Tick Float GetKeyState
+                                      
+type Msg = Tick Float GetKeyState
            | Start
            | P1L | P1LD | P1UL
            | P2D | P2DL | P2DR | P2L | P2LD | P2R | P2RD 
@@ -595,7 +595,7 @@ myShapes model = case model.state of
            | AdminContinue
            | LeavesContinue
            
-           type State = Welcome | Cafeteria | UpperEngine | MedBay | LowerEngine | Reactor | CleanUpTask | Security | Electrical | Storage | Admin | SwipeTask | AdminComplete | ReactorComplete
+type State = Welcome | Cafeteria | UpperEngine | MedBay | LowerEngine | Reactor | CleanUpTask | Security | Electrical | Storage | Admin | SwipeTask | AdminComplete | ReactorComplete
            
            update msg model = case msg of Tick t _ -> if ((model.time - model.startTime) > 30) && (model.state == CleanUpTask)
                                                       then { model | startTime = model.time, 
@@ -649,44 +649,499 @@ myShapes model = case model.state of
                                                                                               otherwise -> model
                                                                                   P4U -> case model.state of Storage -> { model | state = Cafeteria }
                                                                                               otherwise -> model
-                                                                                  ClickSwipeTask -> case model.state of Admin -> { model | state = SwipeTask , cardPosition = InWallet, dragState = Wallet, cardMessage = Wait, pos = (-40,25)} otherwise -> model  SwipePass -> case model.state of SwipeTask -> { model | state = AdminComplete, cardPosition = InWallet, pos = (-40,25), dragState = Wallet, cardMessage = Successful} otherwise -> model  AdminContinue -> case model.state of AdminComplete -> { model | state = Admin} otherwise -> model   SwipeFail -> case model.state of SwipeTask -> { model | state = SwipeTask, cardPosition = InReader, dragState = ReleasedC, pos = (-40,25), cardMessage = model.cardMessage} otherwise -> model  DragAdmin (x, y) -> { model | pos = (x,25)}  ChangeDragState -> { model | dragState = case model.dragState of Wallet -> ReleasedW ReleasedW -> Dragging Dragging -> ReleasedC ReleasedC -> Dragging  , timeAdmin = model.time  ,cardMessage = case model.dragState of Dragging -> adminTask2 model.pos (model.time - model.timeAdmin) 0 ReleasedW -> Wait ReleasedC -> model.cardMessage Wallet -> Wait }
-                                      ChangeCardPosition -> { model | cardPosition = case model.cardPosition of InWallet -> InReader InReader -> InReader }  ChangeMessage -> { model | cardMessage = case model.dragState of Wallet -> Wait Dragging -> adminTask2 model.pos (model.time - model.timeAdmin) 0 ReleasedW -> Wait ReleasedC -> model.cardMessage , pos = (-40,25) }
-                                      CleanFail -> case model.state of CleanUpTask -> { model | state = CleanUpTask, mouse = Released, dragState1 = Released1, dragState2 = Released2, dragState3 = Released3, dragState4 = Released4, dragState5 = Released5, dragState6 = Released6} otherwise -> model  LeavesTask -> case model.state of Reactor -> { model | state = CleanUpTask, time = 0,startTime = model.time, cleanMessage = ""} otherwise -> model  CleanPass -> case model.state of CleanUpTask -> { model | state = ReactorComplete, startTime = model.time, mouse = Released, dragState1 = Released1, dragState2 = Released2, dragState3 = Released3, dragState4 = Released4, dragState5 = Released5, dragState6 = Released6, pos1 = (0,50), pos2 = (30,30), pos3 = (30,0), pos4 = (0,-30), pos5 = (30,-30), pos6 = (40,-40) } otherwise -> model  LeavesContinue -> case model.state of ReactorComplete -> { model | state = Reactor} otherwise -> model  Drag1 (x, y) -> { model | pos1 = (x, y) }  Drag2 (x, y) -> { model | pos2 = (x, y) }  Drag3 (x, y) -> { model | pos3 = (x, y) }  Drag4 (x, y) -> { model | pos4 = (x, y) }  Drag5 (x, y) -> { model | pos5 = (x, y) }  Drag6 (x, y) -> { model | pos6 = (x, y) }  Drag (x, y) -> { model | pos = (x, y) }  ChangeDragState1 -> { model | dragState1 =  case model.dragState1 of Released1 -> MouseDown1 MouseDown1 -> Released1 }  ChangeDragState2 -> { model | dragState2 =  case model.dragState2 of Released2 -> MouseDown2 MouseDown2 -> Released2 }  ChangeDragState3 -> { model | dragState3 =  case model.dragState3 of Released3 -> MouseDown3 MouseDown3 -> Released3 }  ChangeDragState4 -> { model | dragState4 =  case model.dragState4 of Released4 -> MouseDown4 MouseDown4 -> Released4 }  ChangeDragState5 -> { model | dragState5 =  case model.dragState5 of Released5 -> MouseDown5 MouseDown5 -> Released5 }  ChangeDragState6 -> { model | dragState6 =  case model.dragState6 of Released6 -> MouseDown6 MouseDown6 -> Released6 }  Pass1 -> { model | mouse = Released, dragState1 = Released1, dragState2 = Released2, dragState3 = Released3, dragState4 = Released4, dragState5 = Released5, dragState6 = Released6, pos1 = (500,500) }  Pass2 -> { model | mouse = Released, dragState1 = Released1, dragState2 = Released2, dragState3 = Released3, dragState4 = Released4, dragState5 = Released5, dragState6 = Released6, pos2 = (500,500) }  Pass3 -> { model | mouse = Released, dragState1 = Released1, dragState2 = Released2, dragState3 = Released3, dragState4 = Released4, dragState5 = Released5, dragState6 = Released6, pos3 = (500,500) }  Pass4 -> { model | mouse = Released, dragState1 = Released1, dragState2 = Released2, dragState3 = Released3, dragState4 = Released4, dragState5 = Released5, dragState6 = Released6, pos4 = (500,500) }  Pass5 -> { model | mouse = Released, dragState1 = Released1, dragState2 = Released2, dragState3 = Released3, dragState4 = Released4, dragState5 = Released5, dragState6 = Released6, pos5 = (500,500) }  Pass6 -> { model | mouse = Released, dragState1 = Released1, dragState2 = Released2, dragState3 = Released3, dragState4 = Released4, dragState5 = Released5, dragState6 = Released6, pos6 = (500,500) }
-                                      type alias Model = { time : Float , state : State , timeAdmin : Float , dragState : DragState , cardPosition : CardPosition , cardMessage : CardMessage , pos : (Float, Float) , time3 : Float , mouse: MousePressStates , dragState1 : MousePressStates1 , dragState2 : MousePressStates2 , dragState3 : MousePressStates3 , dragState4 : MousePressStates4 , dragState5 : MousePressStates5 , dragState6 : MousePressStates6 , pos1: (Float,Float) , pos2: (Float,Float) , pos3: (Float,Float) , pos4: (Float,Float) , pos5: (Float,Float) , pos6: (Float,Float) , startTime : Float , cleanMessage : String }
-                                      init : Model init = { time = 0 , state = Welcome , timeAdmin = 0 , dragState = Wallet , cardPosition = InWallet , cardMessage = Wait , pos = (-40,25) , time3 = 0 , mouse = Released , dragState1 = Released1 , dragState2 = Released2 , dragState3 = Released3 , dragState4 = Released4 , dragState5 = Released5 , dragState6 = Released6 , startTime = 0 , pos1 = (0,50) , pos2 = (30,30) , pos3 = (30,0) , pos4 = (0,-30) , pos5 = (30,-30) , pos6 = (40,-40) , cleanMessage = "" }  {- --------------------------------------------------------------------------------------------- Artwork --------------------------------------------------------------------------------------------- -}
-                                      welcomeBackground model = group [ background,  star |> move (-50, 50) |> move (repeatDistance 15 200 -50 (model.time), 0),  star |> move (50, 40) |> move (repeatDistance 15 200 -50 (model.time), 0),  star |> move (50, -50) |> move (repeatDistance 15 200 -50 (model.time), 0),  star |> move (0, -40) |> move (repeatDistance 15 200 -50 (model.time), 0),  star |> move (75, 5) |> move (repeatDistance 15 200 -50 (model.time), 0),  star |> move (-75, -50) |> move (repeatDistance 15 200 -50 (model.time), 0),  star |> move (-70, -15) |> move (repeatDistance 15 200 -50 (model.time), 0),  crewmate red |> scale 0.5 |> move (-70,20) |> rotate (degrees 45) |> move (5 * sin model.time, 5 * sin model.time),
-                                      crewmate yellow |> scale 0.5 |> rotate model.time |> move (50,30),
-                                      crewmate green |> scale 0.5 |> rotate (degrees 225) |> move (-50,20) |> move (3 * sin model.time, 3 * cos model.time),
-                                      crewmate darkBlue |> rotate (2*model.time) |> scale 0.5 |> move (100 * (sin (0.25*model.time)), 10 * sin model.time),
-                                      crewmate purple |> scale 0.5 |> rotate (-1 * model.time) |> move (75,-50)  ]   background = rect 300 300 |> filled black  star = circle 1 |> filled white   crewmate colour = group [ leg colour |> move (-4,-13),  leg colour |> move (4, -13),  body colour ]
-                                      body colour = group [ roundedRect 15 18 5 |> filled colour |> addOutline (solid 1) black |> move (10, 3),
-                                      roundedRect 20 30 7 |> filled colour |> addOutline (solid 1) black,
-                                      oval 20 15 |> filled (rgb 105 185 255) |> addOutline (solid 1) black |> move (-3,6),
-                                      curve (0,0) [Pull (13,1) (20,-10)] |> filled white |> scale 0.4 |> move (-3, 12) ]
-                                      leg colour = group [ roundedRect 5 15 3 |> filled colour |> addOutline (solid 1) black ]  startButton = group [ roundedRect 30 15 5 |> filled lightCharcoal |> addOutline (solid 1) darkCharcoal,  text "START" |> centered |> customFont "Comic Sans MS" |> filled white |> scale 0.5 |> move (0,-2) ]   cafeBlueprint = group [ ngon 8 30 |> filled blue |> rotate (degrees 23) |> move (65,0),  rect 102.5 5 |> filled lightBlue |> move (-14,0) ]
-                                      upperEngineButton = group [ ngon 5 30 |> filled black |> addOutline (solid 0.5) (rgb 15 255 50) |> rotate (degrees 180) |> move (-90,0),  text "Upper" |> centered |> customFont "Courier New" |> filled (rgb 15 255 50) |> scale 0.5 |> move (-80,5),  text "Engine" |> centered |> customFont "Courier New" |> filled (rgb 15 255 50) |> scale 0.5 |> move (-80,-5) ]
-                                      medbayButton = group [ rect 30 25 |> filled black |> addOutline (solid 0.5) (rgb 15 255 50) |> move (0,-45),  text "Medbay" |> centered |> customFont "Courier New" |> filled (rgb 15 255 50) |> scale 0.5 |> move (0,-45) ]  ueBlueprint = group [ polygon [(-50,50), (0,50), (20,25), (20,-25), (0,-50), (-70,-50), (-70,25)] |> filled blue |> scale 0.4 |> move (10,40),  rect 65 10 |> filled lightBlue |> move (-12.5,0) |> rotate (degrees 90) ]  lowerEngineButton = group [ rect 50 20 |> filled black |> addOutline (solid 0.5) (rgb 15 255 50) |> move (0,-55.5),  text "Lower Engine" |> centered |> customFont "Courier New" |> filled (rgb 15 255 50) |> scale 0.5 |> move (0,-56)  ]
-                                      securityButton = group [ rect 30 35 |> filled black |> addOutline (solid 0.5) (rgb 15 255 50) |> move (60,0),  text "Security" |> centered |> customFont "Courier New" |> filled (rgb 15 255 50) |> scale 0.5 |> move (60,0) ]  reactorButton = group [ rect 20 20 |> filled black |> move (-55,0),  wedge 25 0.5 |> filled black |> rotate (degrees 180) |> move (-60,0),  text "Reactor" |> centered |> customFont "Courier New" |> filled (rgb 15 255 50) |> scale 0.5 |> move (-65,0) ]  mbBlueprint = group [ rect 50 50 |> filled blue |> move (20,-35),  rect 20 10 |> filled lightBlue |> move (0,-20) |> rotate (degrees 90) ]
-                                      secBlueprint = group [ rect 50 50 |> filled blue |> move (20,-35),  rect 35 10 |> filled lightBlue |> move (7.5,-20) |> rotate (degrees 90) ]  reacBlueprint = group [ rect 20 20 |> filled blue |> scale 1.5 |> move (-40,0),  wedge 30 0.5 |> filled blue |> scale 1.5 |> rotate (degrees 180) |> move (-50,0),  rect 35 10 |> filled lightBlue |> move (-7.5,0) ]
-                                      leaves = group [ circle 7 |> filled (rgb 237 255 0) |> addOutline (solid 1) yellow,  oval 2 7 |> filled yellow |> addOutline (solid 0.5) brown |> move (0,2),  circle 0.75 |> filled yellow |> addOutline (solid 0.5) brown |> move (0,-4) ]  leBlueprint = group [ polygon [(-50,0), (0,0), (0,-50), (-35,-50), (-50,-35)] |> filled blue |> move (-40, 55),  rect 20 10 |> filled lightBlue |> move (-30,30),  rect 10 60 |> filled lightBlue |> move (-20,5),  rect 90 10 |> filled lightBlue |> move (20,-20) ]  storageButton = group [ rect 40 40 |> filled black |> addOutline (solid 0.5) (rgb 15 255 50) |> move (85 ,-20),  text "Storage" |> centered |> customFont "Courier New" |> filled (rgb 15 255 50) |> scale 0.5 |> move (81,-20)  ]  electricalButton = group [ rect 40 30 |> filled black |> addOutline (solid 0.5) (rgb 15 255 50) |> move (25,30),
-                                      text "Electrical" |> centered |> customFont "Courier New" |> filled (rgb 15 255 50) |> scale 0.5 |> move (25,30)  ]   storageBlueprint = group [   rect 5 60 |> filled lightBlue |> move (-7,-13),  rect 20 10 |> filled blue |> move (-30,-40),  ngon 6 20 |> filled blue |> move (-7,-40) ]    adminButton = group [ rect 40 30 |> filled black |> addOutline (solid 0.5) (rgb 15 255 50),  text "Admin" |> centered |> customFont "Courier New" |> filled (rgb 15 255 50) |> scale 0.5  ]  cafeButton = group [ ngon 8 50 |> filled black |> addOutline (solid 0.5) (rgb 15 255 50) |> rotate (degrees 23),
-                                      text "Cafeteria" |> centered |> customFont "Courier New" |> filled (rgb 15 255 50) |> scale 0.5 |> move (0,-30)
-                                      ]
---------------------------------------------------------------------------------------------- -- Admin Task --------------------------------------------------------------------------------------------------
-dragging model state = case state of Wallet -> group [ card |> move (cardMove model.cardPosition) |> notifyTap ChangeCardPosition |> notifyMouseDown ChangeDragState,  cardReaderTop Wait  ,text (Debug.toString (model.cardMessage)) |> size 4 |> filled white |> move (80,-60) ] ReleasedW -> group [ card |> move model.pos |> notifyMouseDown ChangeDragState,  cardReaderTop Wait  ,text (Debug.toString (model.cardMessage)) |> size 4 |> filled white |> move (80,-60) ] ReleasedC -> group [ card |> move model.pos |> notifyMouseDown ChangeDragState ,  cardReaderTop model.cardMessage ] Dragging -> group [ card |> move model.pos |> notifyMouseDown ChangeDragState |> notifyMouseUp ChangeDragState |> notifyMouseUp ChangeMessage |> notifyMouseUp (adminTask1 model.pos (model.time - model.timeAdmin)) ,  cardReaderTop model.cardMessage ,  rect 400 400 |> ghost |> notifyMouseMoveAt DragAdmin |> notifyMouseUp ChangeDragState |> notifyMouseUpAt DragAdmin |> notifyMouseUp ChangeMessage |> notifyMouseUp (adminTask1 model.pos (model.time - model.timeAdmin)) ]
-adminTask1 (x,y) time = if (x > 55 && time > 1 && time <= 2) then SwipePass else SwipeFail  adminTask2 (x,y) time m = if (x > 55 && time > 1 && time <= 2) then Successful else ( if (x > 55 && time > 2) then Slow else ( if (x > 55 && time <= 1 && time >= 0) then Fast else BadRead ) )
-cardMessage message = case message of Wait -> "PLEASE SWIPE CARD..." Fast -> "TOO FAST. TRY AGAIN" Slow -> "TOO SLOW. TRY AGAIN" BadRead -> "BAD READ. TRY AGAIN" Successful -> "SUCCESSFUL "  cardMove cardpos = case cardpos of InWallet -> (0,-40) InReader -> (-40,25)
+                                                                                  ClickSwipeTask -> case model.state of Admin -> { model | state = SwipeTask , cardPosition = InWallet, dragState = Wallet, cardMessage = Wait, pos = (-40,25)} 
+                                                                                              otherwise -> model 
+                                                                                  SwipePass -> case model.state of SwipeTask -> { model | state = AdminComplete, cardPosition = InWallet, pos = (-40,25), dragState = Wallet, cardMessage = Successful} 
+                                                                                              otherwise -> model
+                                                                                  AdminContinue -> case model.state of AdminComplete -> { model | state = Admin} 
+                                                                                              otherwise -> model
+                                                                                  SwipeFail -> case model.state of SwipeTask -> { model | state = SwipeTask, cardPosition = InReader, dragState = ReleasedC, pos = (-40,25), cardMessage = model.cardMessage} 
+                                                                                              otherwise -> model
+                                                                                  DragAdmin (x, y) -> { model | pos = (x,25)} 
+                                                                                  ChangeDragState -> { model | dragState = case model.dragState of Wallet -> ReleasedW 
+                                                                                                                                                   ReleasedW -> Dragging
+                                                                                                                                                   Dragging -> ReleasedC
+                                                                                                                                                   ReleasedC -> Dragging, 
+                                                                                                       timeAdmin = model.time,cardMessage = case model.dragState of Dragging -> adminTask2 model.pos (model.time - model.timeAdmin) 0 
+                                                                                                                                                                    ReleasedW -> Wait
+                                                                                                                                                                    ReleasedC -> model.cardMessage
+                                                                                                                                                                    Wallet -> Wait}
+                                                                                  ChangeCardPosition -> { model | cardPosition = case model.cardPosition of InWallet -> InReader
+                                                                                                                                                            InReader -> InReader}
+                                                                                  ChangeMessage -> { model | cardMessage = case model.dragState of Wallet -> Wait
+                                                                                                                                                   Dragging -> adminTask2 model.pos (model.time - model.timeAdmin) 0
+                                                                                                                                                   ReleasedW -> Wait
+                                                                                                                                                   ReleasedC -> model.cardMessage,
+                                                                                                                                                   pos = (-40,25)}
+                                                                                  CleanFail -> case model.state of CleanUpTask -> { model | state = CleanUpTask, mouse = Released, dragState1 = Released1, dragState2 = Released2, dragState3 = Released3, dragState4 = Released4, dragState5 = Released5, dragState6 = Released6}
+                                                                                              otherwise -> model
+                                                                                  LeavesTask -> case model.state of Reactor -> { model | state = CleanUpTask, time = 0,startTime = model.time, cleanMessage = ""}
+                                                                                              otherwise -> model
+                                                                                  CleanPass -> case model.state of CleanUpTask -> { model | state = ReactorComplete, startTime = model.time, mouse = Released, dragState1 = Released1, dragState2 = Released2, dragState3 = Released3, dragState4 = Released4, dragState5 = Released5, dragState6 = Released6, pos1 = (0,50), pos2 = (30,30), pos3 = (30,0), pos4 = (0,-30), pos5 = (30,-30), pos6 = (40,-40) }
+                                                                                              otherwise -> model
+                                                                                  LeavesContinue -> case model.state of ReactorComplete -> { model | state = Reactor}
+                                                                                              otherwise -> model
+                                                                                  Drag1 (x, y) -> { model | pos1 = (x, y) }
+                                                                                  Drag2 (x, y) -> { model | pos2 = (x, y) }
+                                                                                  Drag3 (x, y) -> { model | pos3 = (x, y) }
+                                                                                  Drag4 (x, y) -> { model | pos4 = (x, y) }
+                                                                                  Drag5 (x, y) -> { model | pos5 = (x, y) }
+                                                                                  Drag6 (x, y) -> { model | pos6 = (x, y) }
+                                                                                  Drag (x, y) -> { model | pos = (x, y) }
+                                                                                  ChangeDragState1 -> { model | dragState1 = case model.dragState1 of Released1 -> MouseDown1
+                                                                                                                                                      MouseDown1 -> Released1 }
+                                                                                  ChangeDragState2 -> { model | dragState2 = case model.dragState2 of Released2 -> MouseDown2 
+                                                                                                                                                      MouseDown2 -> Released2 }
+                                                                                  ChangeDragState3 -> { model | dragState3 = case model.dragState3 of Released3 -> MouseDown3
+                                                                                                                                                      MouseDown3 -> Released3 }
+                                                                                  ChangeDragState4 -> { model | dragState4 = case model.dragState4 of Released4 -> MouseDown4
+                                                                                                                                                      MouseDown4 -> Released4 }
+                                                                                  ChangeDragState5 -> { model | dragState5 = case model.dragState5 of Released5 -> MouseDown5
+                                                                                                                                                      MouseDown5 -> Released5 }
+                                                                                  ChangeDragState6 -> { model | dragState6 = case model.dragState6 of Released6 -> MouseDown6
+                                                                                                                                                      MouseDown6 -> Released6 }
+                                                                                  Pass1 -> { model | mouse = Released, dragState1 = Released1, dragState2 = Released2, dragState3 = Released3, dragState4 = Released4, dragState5 = Released5, dragState6 = Released6, pos1 = (500,500) }
+                                                                                  Pass2 -> { model | mouse = Released, dragState1 = Released1, dragState2 = Released2, dragState3 = Released3, dragState4 = Released4, dragState5 = Released5, dragState6 = Released6, pos2 = (500,500) }
+                                                                                  Pass3 -> { model | mouse = Released, dragState1 = Released1, dragState2 = Released2, dragState3 = Released3, dragState4 = Released4, dragState5 = Released5, dragState6 = Released6, pos3 = (500,500) }
+                                                                                  Pass4 -> { model | mouse = Released, dragState1 = Released1, dragState2 = Released2, dragState3 = Released3, dragState4 = Released4, dragState5 = Released5, dragState6 = Released6, pos4 = (500,500) }
+                                                                                  Pass5 -> { model | mouse = Released, dragState1 = Released1, dragState2 = Released2, dragState3 = Released3, dragState4 = Released4, dragState5 = Released5, dragState6 = Released6, pos5 = (500,500) }
+                                                                                  Pass6 -> { model | mouse = Released, dragState1 = Released1, dragState2 = Released2, dragState3 = Released3, dragState4 = Released4, dragState5 = Released5, dragState6 = Released6, pos6 = (500,500) }
+                                                                                  
+type alias Model = { time : Float, state : State, timeAdmin : Float, dragState : DragState, cardPosition : CardPosition, cardMessage : CardMessage, pos : (Float, Float), time3 : Float, mouse: MousePressStates, dragState1 : MousePressStates1, dragState2 : MousePressStates2, dragState3 : MousePressStates3, dragState4 : MousePressStates4, dragState5 : MousePressStates5, dragState6 : MousePressStates6, pos1: (Float,Float), pos2: (Float,Float), pos3: (Float,Float), pos4: (Float,Float), pos5: (Float,Float), pos6: (Float,Float), startTime : Float, cleanMessage : String}
+                     init : Model
+                     init = { time = 0, state = Welcome, timeAdmin = 0, dragState = Wallet, cardPosition = InWallet, cardMessage = Wait, pos = (-40,25), time3 = 0, mouse = Released, dragState1 = Released1, dragState2 = Released2, dragState3 = Released3, dragState4 = Released4, dragState5 = Released5, dragState6 = Released6, startTime = 0, pos1 = (0,50), pos2 = (30,30), pos3 = (30,0), pos4 = (0,-30), pos5 = (30,-30), pos6 = (40,-40), cleanMessage = ""}
+
+{----------------------------------------------------------------------------------------------Artwork----------------------------------------------------------------------------------------------}
+welcomeBackground model = group [background,
+                                 star
+                                  |> move (-50, 50)
+                                  |> move (repeatDistance 15 200 -50 (model.time), 0),
+                                 star
+                                  |> move (50, 40)
+                                  |> move (repeatDistance 15 200 -50 (model.time), 0),
+                                 star
+                                  |> move (50, -50)
+                                  |> move (repeatDistance 15 200 -50 (model.time), 0),
+                                 star
+                                  |> move (0, -40)
+                                  |> move (repeatDistance 15 200 -50 (model.time), 0),
+                                 star
+                                  |> move (75, 5)
+                                  |> move (repeatDistance 15 200 -50 (model.time), 0),
+                                 star
+                                  |> move (-75, -50)
+                                  |> move (repeatDistance 15 200 -50 (model.time), 0),
+                                 star
+                                  |> move (-70, -15)
+                                  |> move (repeatDistance 15 200 -50 (model.time), 0),
+                                 crewmate red
+                                  |> scale 0.5
+                                  |> move (-70,20)
+                                  |> rotate (degrees 45)
+                                  |> move (5 * sin model.time, 5 * sin model.time),
+                                 crewmate yellow
+                                  |> scale 0.5
+                                  |> rotate model.time
+                                  |> move (50,30),
+                                 crewmate green
+                                  |> scale 0.5
+                                  |> rotate (degrees 225)
+                                  |> move (-50,20)
+                                  |> move (3 * sin model.time, 3 * cos model.time),
+                                 crewmate darkBlue
+                                  |> rotate (2*model.time)
+                                  |> scale 0.5
+                                  |> move (100 * (sin (0.25*model.time)), 10 * sin model.time),
+                                 crewmate purple
+                                  |> scale 0.5
+                                  |> rotate (-1 * model.time)
+                                  |> move (75,-50)
+                                ]
+background = rect 300 300 |> filled black
+
+star = circle 1 |> filled white
+
+crewmate colour = group [leg colour |> move (-4,-13), 
+                         leg colour |> move (4, -13),
+                         body colour]
+                         
+body colour = group [roundedRect 15 18 5
+                      |> filled colour
+                      |> addOutline (solid 1) black
+                      |> move (10, 3),
+                     
+                     roundedRect 20 30 7
+                      |> filled colour
+                      |> addOutline (solid 1) black,
+
+                     oval 20 15
+                      |> filled (rgb 105 185 255)
+                      |> addOutline (solid 1) black
+                      |> move (-3,6),
+  
+                     curve (0,0) [Pull (13,1) (20,-10)]
+                      |> filled white
+                      |> scale 0.4
+                      |> move (-3, 12)
+                    ]
+                    
+leg colour = group [roundedRect 5 15 3
+                     |> filled colour
+                     |> addOutline (solid 1) black
+                    ]
+
+startButton = group [roundedRect 30 15 5 
+                      |> filled lightCharcoal
+                      |> addOutline (solid 1) darkCharcoal,
+                     
+                     text "START"
+                      |> centered
+                      |> customFont "Comic Sans MS"
+                      |> filled white
+                      |> scale 0.5
+                      |> move (0,-2)
+                    ]
+
+cafeBlueprint = group [ngon 8 30
+                        |> filled blue
+                        |> rotate (degrees 23)
+                        |> move (65,0),
+                       rect 102.5 5
+                        |> filled lightBlue
+                        |> move (-14,0)
+                       ]
+                       
+upperEngineButton = group [ngon 5 30
+                            |> filled black
+                            |> addOutline (solid 0.5) (rgb 15 255 50)
+                            |> rotate (degrees 180)
+                            |> move (-90,0),
+                           
+                           text "Upper"
+                            |> centered
+                            |> customFont "Courier New"
+                            |> filled (rgb 15 255 50)
+                            |> scale 0.5
+                            |> move (-80,5),
+                           
+                           text "Engine"
+                            |> centered
+                            |> customFont "Courier New"
+                            |> filled (rgb 15 255 50)
+                            |> scale 0.5 
+                            |> move (-80,-5)
+                          ]
+                          
+medbayButton = group [rect 30 25
+                       |> filled black
+                       |> addOutline (solid 0.5) (rgb 15 255 50)
+                       |> move (0,-45),
+                      
+                      text "Medbay"
+                       |> centered
+                       |> customFont "Courier New"
+                       |> filled (rgb 15 255 50)
+                       |> scale 0.5
+                       |> move (0,-45)
+                      ]
+
+ueBlueprint = group [polygon [(-50,50), (0,50), (20,25), (20,-25), (0,-50), (-70,-50), (-70,25)]
+                      |> filled blue
+                      |> scale 0.4
+                      |> move (10,40),
+                     
+                     rect 65 10
+                      |> filled lightBlue
+                      |> move (-12.5,0)
+                      |> rotate (degrees 90)
+                     ]
+
+lowerEngineButton = group [rect 50 20
+                            |> filled black
+                            |> addOutline (solid 0.5) (rgb 15 255 50)
+                            |> move (0,-55.5),
+                           
+                           text "Lower Engine"
+                            |> centered
+                            |> customFont "Courier New"
+                            |> filled (rgb 15 255 50)
+                            |> scale 0.5
+                            |> move (0,-56)
+                          ]
+                          
+securityButton = group [rect 30 35
+                         |> filled black
+                         |> addOutline (solid 0.5) (rgb 15 255 50)
+                         |> move (60,0),
+                        
+                        text "Security"
+                         |> centered
+                         |> customFont "Courier New"
+                         |> filled (rgb 15 255 50)
+                         |> scale 0.5
+                         |> move (60,0)
+                       ]
+
+reactorButton = group [rect 20 20
+                        |> filled black
+                        |> move (-55,0),
+                       
+                       wedge 25 0.5
+                        |> filled black
+                        |> rotate (degrees 180)
+                        |> move (-60,0),
+                       
+                       text "Reactor"
+                        |> centered
+                        |> customFont "Courier New"
+                        |> filled (rgb 15 255 50)
+                        |> scale 0.5
+                        |> move (-65,0)
+                      ]
+
+mbBlueprint = group [rect 50 50
+                      |> filled blue
+                      |> move (20,-35),
+                     
+                     rect 20 10
+                      |> filled lightBlue
+                      |> move (0,-20)
+                      |> rotate (degrees 90)
+                     ]
+                     
+secBlueprint = group [rect 50 50
+                       |> filled blue
+                       |> move (20,-35),
+                      
+                      rect 35 10
+                       |> filled lightBlue
+                       |> move (7.5,-20)
+                       |> rotate (degrees 90)
+                     ]
+
+reacBlueprint = group [rect 20 20
+                        |> filled blue
+                        |> scale 1.5
+                        |> move (-40,0),
+                       
+                       wedge 30 0.5
+                        |> filled blue
+                        |> scale 1.5
+                        |> rotate (degrees 180)
+                        |> move (-50,0),
+                       
+                       rect 35 10
+                        |> filled lightBlue
+                        |> move (-7.5,0)
+                      ]
+                      
+leaves = group [circle 7  
+                 |> filled (rgb 237 255 0)
+                 |> addOutline (solid 1) yellow,
+                
+                oval 2 7
+                 |> filled yellow
+                 |> addOutline (solid 0.5) brown
+                 |> move (0,2),
+                
+                circle 0.75
+                 |> filled yellow
+                 |> addOutline (solid 0.5) brown
+                 |> move (0,-4)]
+                
+leBlueprint = group [polygon [(-50,0), (0,0), (0,-50), (-35,-50), (-50,-35)]
+                      |> filled blue
+                      |> move (-40, 55),
+                     
+                     rect 20 10
+                      |> filled lightBlue
+                      |> move (-30,30),
+                     
+                     rect 10 60 
+                      |> filled lightBlue
+                      |> move (-20,5),
+                     
+                     rect 90 10
+                      |> filled lightBlue
+                      |> move (20,-20)
+                    ]
+
+storageButton = group [rect 40 40
+                        |> filled black
+                        |> addOutline (solid 0.5) (rgb 15 255 50)
+                        |> move (85 ,-20),
+                       
+                       text "Storage"
+                        |> centered
+                        |> customFont "Courier New"
+                        |> filled (rgb 15 255 50)
+                        |> scale 0.5
+                        |> move (81,-20)
+                      ]
+
+electricalButton = group [rect 40 30
+                           |> filled black
+                           |> addOutline (solid 0.5) (rgb 15 255 50)
+                           |> move (25,30),
+                          
+                          text "Electrical"
+                           |> centered
+                           |> customFont "Courier New"
+                           |> filled (rgb 15 255 50)
+                           |> scale 0.5
+                           |> move (25,30)
+                         ]
+                         
+storageBlueprint = group [rect 5 60 
+                           |> filled lightBlue
+                           |> move (-7,-13),
+                          
+                          rect 20 10
+                           |> filled blue
+                           |> move (-30,-40),
+                          
+                          ngon 6 20
+                           |> filled blue
+                           |> move (-7,-40)
+                         ]
+
+adminButton = group [rect 40 30
+                      |> filled black
+                      |> addOutline (solid 0.5) (rgb 15 255 50),
+                     
+                     text "Admin"
+                      |> centered
+                      |> customFont "Courier New"
+                      |> filled (rgb 15 255 50)
+                      |> scale 0.5
+                    ]
+
+cafeButton = group [ngon 8 50 
+                     |> filled black
+                     |> addOutline (solid 0.5) (rgb 15 255 50)
+                     |> rotate (degrees 23),
+                     
+                    text "Cafeteria"
+                     |> centered
+                     |> customFont "Courier New"
+                     |> filled (rgb 15 255 50)
+                     |> scale 0.5
+                     |> move (0,-30)
+                    ]
+                    
+----------------------------------------------------------------------------------------------- Admin Task--------------------------------------------------------------------------------------------------
+dragging model state = case state of Wallet -> group [card
+                                                       |> move (cardMove model.cardPosition)
+                                                       |> notifyTap ChangeCardPosition
+                                                       |> notifyMouseDown ChangeDragState,
+                                                      
+                                                      cardReaderTop Wait,
+                                                      
+                                                      text (Debug.toString (model.cardMessage))
+                                                       |> size 4
+                                                       |> filled white
+                                                       |> move (80,-60)
+                                                      ]
+                                                      
+                                    ReleasedW -> group [card
+                                                         |> move model.pos
+                                                         |> notifyMouseDown ChangeDragState,
+                                                        
+                                                        cardReaderTop Wait,
+                                                        
+                                                        text (Debug.toString (model.cardMessage))
+                                                         |> size 4
+                                                         |> filled white
+                                                         |> move (80,-60)
+                                                        ]
+                                    
+                                    ReleasedC -> group [card
+                                                         |> move model.pos
+                                                         |> notifyMouseDown ChangeDragState,
+                                                        
+                                                        cardReaderTop model.cardMessage
+                                                       ]
+                                    
+                                    Dragging -> group [card
+                                                        |> move model.pos
+                                                        |> notifyMouseDown ChangeDragState
+                                                        |> notifyMouseUp ChangeDragState
+                                                        |> notifyMouseUp ChangeMessage
+                                                        |> notifyMouseUp (adminTask1 model.pos (model.time - model.timeAdmin)),
+                                                       
+                                                       cardReaderTop model.cardMessage,
+                                                       
+                                                       rect 400 400 
+                                                        |> ghost
+                                                        |> notifyMouseMoveAt DragAdmin
+                                                        |> notifyMouseUp ChangeDragState
+                                                        |> notifyMouseUpAt DragAdmin
+                                                        |> notifyMouseUp ChangeMessage
+                                                        |> notifyMouseUp (adminTask1 model.pos (model.time - model.timeAdmin))
+                                                      ]
+                                                      
+
+adminTask1 (x,y) time = if (x > 55 && time > 1 && time <= 2) 
+                        then SwipePass
+                        else SwipeFail
+
+adminTask2 (x,y) time m = if (x > 55 && time > 1 && time <= 2)
+                          then Successful
+                          else (if (x > 55 && time > 2)
+                                then Slow 
+                                else (if (x > 55 && time <= 1 && time >= 0)
+                                      then Fast 
+                                      else BadRead))
+                                      
+cardMessage message = case message of Wait -> "PLEASE SWIPE CARD..." 
+                                      Fast -> "TOO FAST. TRY AGAIN"
+                                      Slow -> "TOO SLOW. TRY AGAIN"
+                                      BadRead -> "BAD READ. TRY AGAIN"
+                                      Successful -> "SUCCESSFUL "
+
+cardMove cardpos = case cardpos of InWallet -> (0,-40)
+                                   InReader -> (-40,25)
+                                   
 type CardPosition = InWallet | InReader
 type DragState = Wallet | ReleasedW | Dragging | ReleasedC
 type CardMessage = Wait | Fast | Slow | BadRead | Successful
-backgroundAdmin = group [ rect 200 200 |> filled black,
-roundedRect 100 20 5 |> filled darkCharcoal |> move (0,10) |> addOutline (solid 1) (black),  rect 100 70 |> filled charcoal |> move (0,-30) |> addOutline (solid 1) black ]
-cardReaderTop message = group [ roundedRect 100 50 5 |> filled darkCharcoal |> move (0,50) |> addOutline (solid 1) black,
-rect 90 10 |> filled (rgb 40 125 80) |> move (0,55) |> addOutline (solid 1) (black),
-text (cardMessage message) |> centered |> customFont "Courier New" |> filled white |> scale 0.5 |> move (-8,54)
-]
--- redLight = group [ circle 3 |> filled red |> move (32,33) |> addOutline (solid 0.7) black,
-shine |> move (34.2,33.5) ]  greenLight = group [ circle 3 |> filled green |> move (40,33) |> addOutline (solid 0.7) black,
+
+backgroundAdmin = group [rect 200 200 
+                          |> filled black,
+
+                         roundedRect 100 20 5
+                          |> filled darkCharcoal
+                          |> move (0,10)
+                          |> addOutline (solid 1) (black),
+                         
+                         rect 100 70
+                          |> filled charcoal
+                          |> move (0,-30)
+                          |> addOutline (solid 1) black
+                        ]
+                        
+cardReaderTop message = group [roundedRect 100 50 5
+                                |> filled darkCharcoal
+                                |> move (0,50)
+                                |> addOutline (solid 1) black,
+                               
+                               rect 90 10
+                                |> filled (rgb 40 125 80)
+                                |> move (0,55)
+                                |> addOutline (solid 1) (black),
+
+                               text (cardMessage message)
+                                |> centered
+                                |> customFont "Courier New"
+                                |> filled white
+                                |> scale 0.5
+                                |> move (-8,54)
+                              ]
+                              
+--redLight = group [circle 3 |> filled red |> move (32,33) |> addOutline (solid 0.7) black,
+shine |> move (34.2,33.5) ]
+
+greenLight = group [ circle 3 |> filled green |> move (40,33) |> addOutline (solid 0.7) black,
 shine |> move (42,33.5) ]  shine = curve (0,0) [Pull (10,10) (10,20)] |> filled white |> rotate (degrees 90) |> scale 0.75 |> scale 0.2
 -- Admin card design card = group [ roundedRect 70 45 5 |> filled lightGray |> addOutline (solid 1) black,
 square 20 |> filled white |> move (-20,5),
